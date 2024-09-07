@@ -40,27 +40,55 @@ function tokenTagToCssColour(tokenTag: TokenTag): string {
 	switch (tokenTag) {
 		case TokenTag.OpenSquiglyBracket:
 		case TokenTag.CloseSquiglyBracket:
-			return `blue`
+			return `#7287fd`
 
 		case TokenTag.OpenSquareBracket:
 		case TokenTag.CloseSquareBracket:
-			return `cyan`
+			return `#209fb5`
 
 		case TokenTag.Colon:
 		case TokenTag.Comma:
-			return `lightgrey`
+			return `#7c7f93`
 
 		case TokenTag.True:
 		case TokenTag.False:
-			return `blue`
+			return `#1e66f5`
 
 		case TokenTag.Number:
-			return `orange`
+			return `#fe640b`
 
 		case TokenTag.Null:
-			return `purple`
+			return `#8839ef`
 
 		case TokenTag.String:
-			return `green`
+			return `#40a02b`
 	}
+	/* Dark background colours
+	{
+		case TokenTag.OpenSquiglyBracket:
+		case TokenTag.CloseSquiglyBracket:
+			return `#b4befe`;
+
+		case TokenTag.OpenSquareBracket:
+		case TokenTag.CloseSquareBracket:
+			return `#74c7ec`;
+
+		case TokenTag.Colon:
+		case TokenTag.Comma:
+			return `#9399b2`;
+
+		case TokenTag.True:
+		case TokenTag.False:
+			return `#89b4fa`;
+
+		case TokenTag.Number:
+			return `#fab387`;
+
+		case TokenTag.Null:
+			return `#cba6f7`;
+
+		case TokenTag.String:
+			return `#a6e3a1`;
+	
+	*/
 }
