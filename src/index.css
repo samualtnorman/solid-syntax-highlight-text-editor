@@ -11,11 +11,17 @@ body, textarea, input {
 	tab-size: 4
 }
 
+/* https://catppuccin.com/palette/ */
 body {
 	position: relative;
 	font-family: monospace;
 	font-size: clamp(16px, 3vw, 20px);
-	word-break: break-word
+	word-break: break-word;
+	background-color: light-dark(#EFF1F5, #1E1E2E)
+}
+
+textarea::selection {
+	background-color: light-dark(#7C7F934D, #585b704D)
 }
 
 ::highlight(squigly-bracket) {
