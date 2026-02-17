@@ -45,3 +45,7 @@ body {
 ::highlight(string) {
 	color: light-dark(#40A02B, #A6E3A1)
 }
+
+::highlight(error) {
+	color: light-dark(#D20F39, #F38BA8)
+}

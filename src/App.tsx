@@ -14,12 +14,42 @@ export function App(): JSX.Element {
 	{ "foo": "bar" }
 ]`)
 
-	const getTokens = createMemo(() => {
+	const getTokensAndError = createMemo(() => {
+		const tokens = []
+
 		try {
-			return [ ...tokenise(getTextAreaValue()) ]
+			for (const token of tokenise(getTextAreaValue()))
+				tokens.push(token)
 		} catch (error) {
-			console.error(error)
+			return { tokens, error }
 		}
+
+		return { tokens, error: undefined }
+	})
+
+	const getTokens = createMemo(() => getTokensAndError().tokens)
+	const getError = createMemo(() => getTokensAndError().error)
+
+	const getErrorMessage = createMemo(() => {
+		const error = getError()
+		const message = error instanceof Error ? error.message : String(error)
+		const newlineIndex = message.indexOf(`\n`)
+
+		return newlineIndex == -1 ? message : message.slice(0, newlineIndex)
+	})
+
+	const getLastToken = createMemo(() => getTokens().at(-1))
+
+	const getLastTokenIndex = createMemo(() => {
+		const lastToken = getLastToken()
+
+		return lastToken && lastToken.index + lastToken.size
+	})
+
+	const getIndexOfEndOfErrorLine = createMemo(() => {
+		const index = getTextAreaValue().indexOf(`\n`, getLastTokenIndex() && getLastTokenIndex()! + 1)
+
+		return index == -1 ? getTextAreaValue().length : index
 	})
 
 	const squiglyBracketHighlight = new Highlight
@@ -29,6 +59,7 @@ export function App(): JSX.Element {
 	const numberHighlight = new Highlight
 	const nullHighlight = new Highlight
 	const stringHighlight = new Highlight
+	const errorHighlight = new Highlight
 
 	CSS.highlights
 		.set(`squigly-bracket`, squiglyBracketHighlight)
@@ -38,6 +69,28 @@ export function App(): JSX.Element {
 		.set(`number`, numberHighlight)
 		.set(`null`, nullHighlight)
 		.set(`string`, stringHighlight)
+		.set(`error`, errorHighlight)
+
+	const errorRange = new Range
+
+	createEffect(wasError => {
+		if (getError()) {
+			const textNode = divElement.childNodes[0]
+
+			errorRange.setStart(textNode, getIndexOfEndOfErrorLine() + 1)
+			errorRange.setEnd(textNode, getIndexOfEndOfErrorLine() + 1 + getErrorMessage().length)
+
+			if (!wasError)
+				errorHighlight.add(errorRange)
+
+			return true
+		}
+
+		if (wasError)
+			errorHighlight.delete(errorRange)
+
+		return false
+	})
 
 	createEffect(() => {
 		const tokens = getTokens()
@@ -87,7 +140,11 @@ export function App(): JSX.Element {
 		<div
 			ref={divElement}
 			style="position: absolute; user-select: none; width: 100vw; height: 100vh; white-space: pre-wrap"
-		>{getTextAreaValue()}</div>
+		>{
+			getTokens().length && getError()
+				? `${getTextAreaValue().slice(0, getIndexOfEndOfErrorLine())} ${getErrorMessage()}${getTextAreaValue().slice(getIndexOfEndOfErrorLine())}`
+				: getTextAreaValue()
+		}</div>
 
 		<textarea
 			ref={textareaElement}
