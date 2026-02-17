@@ -1,9 +1,37 @@
-import { createEffect, createMemo, createSignal, untrack, type JSX } from "solid-js"
+import { createEffect, createMemo, createSignal, onMount, untrack, type JSX } from "solid-js"
 import { tokenise, TokenTag } from "./json-parser"
+
+const createRange = ({ start, end, highlight }: {
+	start: () => { node: Node, offset: number } | undefined
+	end: () => { node: Node, offset: number } | undefined
+	highlight: () => Highlight | undefined
+}) => {
+	const range = new Range
+
+	createEffect(() => {
+		if (start())
+			range.setStart(start()!.node, start()!.offset)
+	})
+
+	createEffect(() => {
+		if (end())
+			range.setEnd(end()!.node, end()!.offset)
+	})
+
+	createEffect<Highlight | undefined>(lastHighlight => {
+		lastHighlight?.delete(range)
+		return highlight()?.add(range)
+	})
+
+	return range
+}
+
+const spliceString = (string: string, toInsert: string, index: number, length = 0): string =>
+	string.slice(0, index) + toInsert + string.slice(index + length)
 
 export function App(): JSX.Element {
 	let divElement!: HTMLDivElement
-	let textareaElement!: HTMLTextAreaElement
+
 	const [ getTextAreaValue, setTextAreaValue ] = createSignal(`\
 [
 	null,
@@ -21,13 +49,15 @@ export function App(): JSX.Element {
 			for (const token of tokenise(getTextAreaValue()))
 				tokens.push(token)
 		} catch (error) {
-			return { tokens, error }
+			return { tokens, error, isError: true } 
 		}
 
-		return { tokens, error: undefined }
+		return { tokens, error: undefined, isError: false }
 	})
 
 	const getTokens = createMemo(() => getTokensAndError().tokens)
+
+	const isError = createMemo(() => getTokensAndError().isError)
 	const getError = createMemo(() => getTokensAndError().error)
 
 	const getErrorMessage = createMemo(() => {
@@ -60,6 +90,7 @@ export function App(): JSX.Element {
 	const nullHighlight = new Highlight
 	const stringHighlight = new Highlight
 	const errorHighlight = new Highlight
+	const keyHighlight = new Highlight
 
 	CSS.highlights
 		.set(`squigly-bracket`, squiglyBracketHighlight)
@@ -70,32 +101,23 @@ export function App(): JSX.Element {
 		.set(`null`, nullHighlight)
 		.set(`string`, stringHighlight)
 		.set(`error`, errorHighlight)
-
-	const errorRange = new Range
-
-	createEffect(wasError => {
-		if (getError()) {
-			const textNode = divElement.childNodes[0]
-
-			errorRange.setStart(textNode, getIndexOfEndOfErrorLine() + 1)
-			errorRange.setEnd(textNode, getIndexOfEndOfErrorLine() + 1 + getErrorMessage().length)
-
-			if (!wasError)
-				errorHighlight.add(errorRange)
-
-			return true
-		}
-
-		if (wasError)
-			errorHighlight.delete(errorRange)
-
-		return false
+		.set(`key`, keyHighlight)
+	
+	createRange({
+		start: () => isError() && divElement.firstChild
+			? { node: divElement.firstChild!, offset: getIndexOfEndOfErrorLine() + 2 }
+			: undefined,
+		end: () => isError() && divElement.firstChild
+			? { node: divElement.firstChild!, offset: getIndexOfEndOfErrorLine() + 2 + getErrorMessage().length }
+			: undefined,
+		highlight: () => isError() ? errorHighlight : undefined
 	})
 
 	createEffect(() => {
 		const tokens = getTokens()
+		const textNode = divElement.firstChild || undefined
 
-		if (!tokens)
+		if (!(tokens.length && textNode))
 			return
 
 		squiglyBracketHighlight.clear()
@@ -105,8 +127,7 @@ export function App(): JSX.Element {
 		numberHighlight.clear()
 		nullHighlight.clear()
 		stringHighlight.clear()
-
-		const textNode = divElement.childNodes[0]
+		keyHighlight.clear()
 
 		for (const token of tokens) {
 			const highlight =
@@ -124,6 +145,8 @@ export function App(): JSX.Element {
 					nullHighlight
 				: token.tag == TokenTag.String ?
 					stringHighlight
+				: token.tag == TokenTag.Key ?
+					keyHighlight
 				: undefined
 
 			if (highlight) {
@@ -141,13 +164,12 @@ export function App(): JSX.Element {
 			ref={divElement}
 			style="position: absolute; user-select: none; width: 100vw; height: 100vh; white-space: pre-wrap"
 		>{
-			getTokens().length && getError()
-				? `${getTextAreaValue().slice(0, getIndexOfEndOfErrorLine())} ${getErrorMessage()}${getTextAreaValue().slice(getIndexOfEndOfErrorLine())}`
+			isError()
+				? spliceString(getTextAreaValue(), `  ${getErrorMessage()}`, getIndexOfEndOfErrorLine())
 				: getTextAreaValue()
 		}</div>
 
 		<textarea
-			ref={textareaElement}
 			value={untrack(() => getTextAreaValue())}
 			style="width: 100vw; height: 100vh; color: transparent; caret-color: var(--rosewater); position: absolute; left: 0; white-space: pre-wrap"
 			onKeyDown={event => {
@@ -156,7 +178,7 @@ export function App(): JSX.Element {
 					document.execCommand(`insertText`, false, `\t`)
 				}
 			}}
-			onInput={() => setTextAreaValue(textareaElement.value)}
+			onInput={({ currentTarget }) => setTextAreaValue(currentTarget.value)}
 		/>
 	</>
 }

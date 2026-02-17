@@ -1,7 +1,7 @@
 // from https://gist.github.com/samualtnorman/af7c9d247a44de91f4ac52b09c721d4b
 export enum TokenTag {
 	CloseSquareBracket, CloseSquiglyBracket, Colon, Comma, False, Null, Number, OpenSquareBracket, OpenSquiglyBracket,
-	String, True
+	String, True, Key
 }
 
 export type Token = { tag: TokenTag, index: number, size: number }
@@ -33,7 +33,8 @@ export function* tokenise(source: string): Generator<Token, void, void> {
 
 					if (!stringToken)
 						throw SyntaxError(`Unexpected character "${source[index]}"`)
-			
+
+					stringToken.tag = TokenTag.Key
 					yield stringToken
 					skipWhitespace()
 

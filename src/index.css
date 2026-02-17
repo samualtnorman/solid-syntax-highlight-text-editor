@@ -84,3 +84,7 @@ textarea::selection {
 ::highlight(error) {
 	color: var(--red)
 }
+
+::highlight(key) {
+	color: var(--blue)
+}
