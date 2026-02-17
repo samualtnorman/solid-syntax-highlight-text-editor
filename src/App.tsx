@@ -84,6 +84,12 @@ export function App(): JSX.Element {
 		<textarea
 			ref={textareaElement}
 			style="width: 100vw; height: 100vh; color: #00000000; caret-color: light-dark(black, white); position: absolute; left: 0; white-space: pre-wrap"
+			onKeyDown={event => {
+				if (event.key == `Tab`) {
+					event.preventDefault()
+					document.execCommand(`insertText`, false, `\t`)
+				}
+			}}
 			onInput={() => setTextAreaValue(textareaElement.value)}
 		/>
 	</>
