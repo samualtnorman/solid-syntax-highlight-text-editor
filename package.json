@@ -17,5 +17,6 @@
 	},
 	"dependencies": {
 		"solid-js": "^1.9.11"
-	}
+	},
+	"type": "module"
 }
