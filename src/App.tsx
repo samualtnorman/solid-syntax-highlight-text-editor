@@ -1,10 +1,18 @@
-import { createEffect, createMemo, createSignal, type JSX } from "solid-js"
+import { createEffect, createMemo, createSignal, untrack, type JSX } from "solid-js"
 import { tokenise, TokenTag } from "./json-parser"
 
 export function App(): JSX.Element {
 	let divElement!: HTMLDivElement
 	let textareaElement!: HTMLTextAreaElement
-	const [ getTextAreaValue, setTextAreaValue ] = createSignal(``)
+	const [ getTextAreaValue, setTextAreaValue ] = createSignal(`\
+[
+	null,
+	true,
+	false,
+	123,
+	"hello world",
+	{ "foo": "bar" }
+]`)
 
 	const getTokens = createMemo(() => {
 		try {
@@ -83,6 +91,7 @@ export function App(): JSX.Element {
 
 		<textarea
 			ref={textareaElement}
+			value={untrack(() => getTextAreaValue())}
 			style="width: 100vw; height: 100vh; color: #00000000; caret-color: light-dark(black, white); position: absolute; left: 0; white-space: pre-wrap"
 			onKeyDown={event => {
 				if (event.key == `Tab`) {
