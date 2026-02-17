@@ -1,7 +1,8 @@
-import { createMemo, createSignal, For, type JSX } from "solid-js"
+import { createEffect, createMemo, createSignal, type JSX } from "solid-js"
 import { tokenise, TokenTag } from "./json-parser"
 
 export function App(): JSX.Element {
+	let divElement!: HTMLDivElement
 	let textareaElement!: HTMLTextAreaElement
 	const [ getTextAreaValue, setTextAreaValue ] = createSignal(``)
 
@@ -12,21 +13,73 @@ export function App(): JSX.Element {
 			console.error(error)
 		}
 	})
+
+	const squiglyBracketHighlight = new Highlight
+	const squareBracketHighlight = new Highlight
+	const punctuationHighlight = new Highlight
+	const booleanHighlight = new Highlight
+	const numberHighlight = new Highlight
+	const nullHighlight = new Highlight
+	const stringHighlight = new Highlight
+
+	CSS.highlights
+		.set(`squigly-bracket`, squiglyBracketHighlight)
+		.set(`square-bracket`, squareBracketHighlight)
+		.set(`punctuation`, punctuationHighlight)
+		.set(`boolean`, booleanHighlight)
+		.set(`number`, numberHighlight)
+		.set(`null`, nullHighlight)
+		.set(`string`, stringHighlight)
+
+	createEffect(() => {
+		const tokens = getTokens()
+
+		if (!tokens)
+			return
+
+		squiglyBracketHighlight.clear()
+		squareBracketHighlight.clear()
+		punctuationHighlight.clear()
+		booleanHighlight.clear()
+		numberHighlight.clear()
+		nullHighlight.clear()
+		stringHighlight.clear()
+
+		const textNode = divElement.childNodes[0]
+
+		for (const token of tokens) {
+			const highlight =
+				token.tag == TokenTag.OpenSquiglyBracket || token.tag == TokenTag.CloseSquiglyBracket ?
+					squiglyBracketHighlight
+				: token.tag == TokenTag.OpenSquareBracket || token.tag == TokenTag.CloseSquareBracket ?
+					squareBracketHighlight
+				: token.tag == TokenTag.Colon || token.tag == TokenTag.Comma ?
+					punctuationHighlight
+				: token.tag == TokenTag.True || token.tag == TokenTag.False ?
+					booleanHighlight
+				: token.tag == TokenTag.Number ?
+					numberHighlight
+				: token.tag == TokenTag.Null ?
+					nullHighlight
+				: token.tag == TokenTag.String ?
+					stringHighlight
+				: undefined
+
+			if (highlight) {
+				const range = new Range
+
+				range.setStart(textNode, token.index)
+				range.setEnd(textNode, token.index + token.size)
+				highlight.add(range)
+			}
+		}
+	})
 	
 	return <>
 		<div
+			ref={divElement}
 			style="position: absolute; user-select: none; width: 100vw; height: 100vh; white-space: pre-wrap"
-		>
-			<For each={getTokens()} fallback={<span style="color: red">{getTextAreaValue()}</span>}>
-				{(token, getIndex) => <>
-					{getIndex() && <span>{getTextAreaValue().slice(getTokens()![getIndex() - 1].index + getTokens()![getIndex() - 1].size, token.index)}</span>}
-
-					<span style={{ color: tokenTagToCssColour(token.tag) }}>
-						{getTextAreaValue().slice(token.index, token.index + token.size)}
-					</span>
-				</>}
-			</For>
-		</div>
+		>{getTextAreaValue()}</div>
 
 		<textarea
 			ref={textareaElement}
@@ -34,61 +87,4 @@ export function App(): JSX.Element {
 			onInput={() => setTextAreaValue(textareaElement.value)}
 		/>
 	</>
-}
-
-function tokenTagToCssColour(tokenTag: TokenTag): string {
-	switch (tokenTag) {
-		case TokenTag.OpenSquiglyBracket:
-		case TokenTag.CloseSquiglyBracket:
-			return `#7287fd`
-
-		case TokenTag.OpenSquareBracket:
-		case TokenTag.CloseSquareBracket:
-			return `#209fb5`
-
-		case TokenTag.Colon:
-		case TokenTag.Comma:
-			return `#7c7f93`
-
-		case TokenTag.True:
-		case TokenTag.False:
-			return `#1e66f5`
-
-		case TokenTag.Number:
-			return `#fe640b`
-
-		case TokenTag.Null:
-			return `#8839ef`
-
-		case TokenTag.String:
-			return `#40a02b`
-	}
-	/* Dark background colours
-	{
-		case TokenTag.OpenSquiglyBracket:
-		case TokenTag.CloseSquiglyBracket:
-			return `#b4befe`;
-
-		case TokenTag.OpenSquareBracket:
-		case TokenTag.CloseSquareBracket:
-			return `#74c7ec`;
-
-		case TokenTag.Colon:
-		case TokenTag.Comma:
-			return `#9399b2`;
-
-		case TokenTag.True:
-		case TokenTag.False:
-			return `#89b4fa`;
-
-		case TokenTag.Number:
-			return `#fab387`;
-
-		case TokenTag.Null:
-			return `#cba6f7`;
-
-		case TokenTag.String:
-			return `#a6e3a1`;
-	
-	*/
 }

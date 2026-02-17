@@ -13,3 +13,31 @@ body {
 	font-size: clamp(16px, 3vw, 20px);
 	word-break: break-word
 }
+
+::highlight(squigly-bracket) {
+	color: #7287FD
+}
+
+::highlight(square-bracket) {
+	color: #209FB5
+}
+
+::highlight(punctuation) {
+	color: #7C7F93
+}
+
+::highlight(boolean) {
+	color: #1E66F5
+}
+
+::highlight(number) {
+	color: #FE640B
+}
+
+::highlight(null) {
+	color: #8839EF
+}
+
+::highlight(string) {
+	color: #40A02B
+}
