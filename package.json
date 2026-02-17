@@ -16,6 +16,7 @@
 		"vite-plugin-solid": "^2.11.10"
 	},
 	"dependencies": {
+		"@catppuccin/palette": "^1.7.1",
 		"solid-js": "^1.9.11"
 	},
 	"type": "module"
