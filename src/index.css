@@ -1,3 +1,7 @@
+:root {
+	color-scheme: light dark
+}
+
 html {
 	height: 100%
 }
@@ -15,29 +19,29 @@ body {
 }
 
 ::highlight(squigly-bracket) {
-	color: #7287FD
+	color: light-dark(#7287FD, #B4BEFE)
 }
 
 ::highlight(square-bracket) {
-	color: #209FB5
+	color: light-dark(#209FB5, #74C7EC)
 }
 
 ::highlight(punctuation) {
-	color: #7C7F93
+	color: light-dark(#7C7F93, #9399B2)
 }
 
 ::highlight(boolean) {
-	color: #1E66F5
+	color: light-dark(#1E66F5, #89B4FA)
 }
 
 ::highlight(number) {
-	color: #FE640B
+	color: light-dark(#FE640B, #FAB387)
 }
 
 ::highlight(null) {
-	color: #8839EF
+	color: light-dark(#8839EF, #CBA6F7)
 }
 
 ::highlight(string) {
-	color: #40A02B
+	color: light-dark(#40A02B, #A6E3A1)
 }
