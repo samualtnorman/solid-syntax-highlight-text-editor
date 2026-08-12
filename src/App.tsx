@@ -1,5 +1,4 @@
 import { createEffect, createMemo, createSignal, untrack, type JSX } from "solid-js"
-import { createRange } from "./createRange"
 import { tokenise, TokenTag } from "./json-parser"
 
 const spliceString = (string: string, toInsert: string, index: number, length = 0): string =>
@@ -65,7 +64,6 @@ export function App(): JSX.Element {
 	const numberHighlight = new Highlight
 	const nullHighlight = new Highlight
 	const stringHighlight = new Highlight
-	const errorHighlight = new Highlight
 	const keyHighlight = new Highlight
 
 	CSS.highlights
@@ -76,18 +74,7 @@ export function App(): JSX.Element {
 		.set(`number`, numberHighlight)
 		.set(`null`, nullHighlight)
 		.set(`string`, stringHighlight)
-		.set(`error`, errorHighlight)
 		.set(`key`, keyHighlight)
-	
-	createRange({
-		start: () => isError() && divElement.firstChild
-			? { node: divElement.firstChild!, offset: getIndexOfEndOfErrorLine() + 2 }
-			: undefined,
-		end: () => isError() && divElement.firstChild
-			? { node: divElement.firstChild!, offset: getIndexOfEndOfErrorLine() + 2 + getErrorMessage().length }
-			: undefined,
-		highlight: () => isError() ? errorHighlight : undefined
-	})
 
 	createEffect(() => {
 		const tokens = getTokens()
@@ -139,11 +126,13 @@ export function App(): JSX.Element {
 		<div
 			ref={divElement}
 			style="position: absolute; user-select: none; width: 100vw; height: 100vh; white-space: pre-wrap"
+		>{getTextAreaValue()}</div>
+
+		{isError() && <div
+			style="position: absolute; user-select: none; width: 100vw; height: 100vh; white-space: preserve nowrap; color: var(--red)"
 		>{
-			isError()
-				? spliceString(getTextAreaValue(), `  ${getErrorMessage()}`, getIndexOfEndOfErrorLine())
-				: getTextAreaValue()
-		}</div>
+			spliceString(getTextAreaValue().replace(/\S/g, ` `), `  ${getErrorMessage()}`, getIndexOfEndOfErrorLine())
+		}</div>}
 
 		<textarea
 			value={untrack(() => getTextAreaValue())}
