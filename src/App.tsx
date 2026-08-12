@@ -1,30 +1,6 @@
 import { createEffect, createMemo, createSignal, untrack, type JSX } from "solid-js"
+import { createRange } from "./createRange"
 import { tokenise, TokenTag } from "./json-parser"
-
-const createRange = ({ start, end, highlight }: {
-	start: () => { node: Node, offset: number } | undefined
-	end: () => { node: Node, offset: number } | undefined
-	highlight: () => Highlight | undefined
-}) => {
-	const range = new Range
-
-	createEffect(() => {
-		if (start())
-			range.setStart(start()!.node, start()!.offset)
-	})
-
-	createEffect(() => {
-		if (end())
-			range.setEnd(end()!.node, end()!.offset)
-	})
-
-	createEffect<Highlight | undefined>(lastHighlight => {
-		lastHighlight?.delete(range)
-		return highlight()?.add(range)
-	})
-
-	return range
-}
 
 const spliceString = (string: string, toInsert: string, index: number, length = 0): string =>
 	string.slice(0, index) + toInsert + string.slice(index + length)
