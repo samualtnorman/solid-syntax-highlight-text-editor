@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, onMount, untrack, type JSX } from "solid-js"
+import { createEffect, createMemo, createSignal, untrack, type JSX } from "solid-js"
 import { tokenise, TokenTag } from "./json-parser"
 
 const createRange = ({ start, end, highlight }: {
