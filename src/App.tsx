@@ -4,6 +4,10 @@ import { tokenise, TokenTag } from "./json-parser"
 const spliceString = (string: string, toInsert: string, index: number, length = 0): string =>
 	string.slice(0, index) + toInsert + string.slice(index + length)
 
+type Theme = `light` | `dark`
+
+const reverseTheme = (theme: Theme) => theme == `light` ? `dark` : `light`
+
 export function App(): JSX.Element {
 	let divElement!: HTMLDivElement
 
@@ -121,7 +125,10 @@ export function App(): JSX.Element {
 			}
 		}
 	})
-	
+
+	const prefersDarkQuery = matchMedia(`(prefers-color-scheme: dark)`)
+	let colorScheme = (localStorage.getItem(`color-scheme`) || ``) as Theme | ``
+
 	return <>
 		<div
 			ref={divElement}
@@ -145,5 +152,19 @@ export function App(): JSX.Element {
 			}}
 			onInput={({ currentTarget }) => setTextAreaValue(currentTarget.value)}
 		/>
+
+		<div>
+			<button
+				style="float: right"
+				onClick={() => {
+					const systemTheme = prefersDarkQuery.matches ? `dark` : `light`
+					const newTheme = reverseTheme(colorScheme || systemTheme)
+
+					colorScheme = newTheme == systemTheme ? `` : newTheme
+					document.body.style.colorScheme = colorScheme
+					localStorage.setItem(`color-scheme`, colorScheme)
+				}}
+			>Theme</button>
+		</div>
 	</>
 }
