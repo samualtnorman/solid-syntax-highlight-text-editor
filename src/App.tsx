@@ -127,7 +127,12 @@ export function App(): JSX.Element {
 	})
 
 	const prefersDarkQuery = matchMedia(`(prefers-color-scheme: dark)`)
-	let colorScheme = (localStorage.getItem(`color-scheme`) || ``) as Theme | ``
+	const [ getColorScheme, setColorScheme ] = createSignal((localStorage.getItem(`color-scheme`) || ``) as Theme | ``)
+
+	createEffect(() => {
+		document.body.style.colorScheme = getColorScheme()
+		localStorage.setItem(`color-scheme`, getColorScheme())
+	})
 
 	return <>
 		<div
@@ -158,11 +163,9 @@ export function App(): JSX.Element {
 				style="float: right"
 				onClick={() => {
 					const systemTheme = prefersDarkQuery.matches ? `dark` : `light`
-					const newTheme = reverseTheme(colorScheme || systemTheme)
+					const newTheme = reverseTheme(getColorScheme() || systemTheme)
 
-					colorScheme = newTheme == systemTheme ? `` : newTheme
-					document.body.style.colorScheme = colorScheme
-					localStorage.setItem(`color-scheme`, colorScheme)
+					setColorScheme(newTheme == systemTheme ? `` : newTheme)
 				}}
 			>Theme</button>
 		</div>
