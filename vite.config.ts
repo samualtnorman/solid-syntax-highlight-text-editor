@@ -1,11 +1,13 @@
 import devtools from "solid-devtools/vite"
+import icons from "unplugin-icons/vite"
 import { defineConfig } from "vite"
 import solidPlugin from "vite-plugin-solid"
 
 export default defineConfig({
 	plugins: [
 		devtools({ autoname: true }),
-		solidPlugin()
+		solidPlugin(),
+		icons({ compiler: `solid` })
 	],
 	server: {
 		port: 3000

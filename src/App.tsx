@@ -1,4 +1,6 @@
 import { createEffect, createMemo, createSignal, untrack, type JSX } from "solid-js"
+import DarkModeIcon from "~icons/material-symbols/dark-mode-rounded"
+import LightModeIcon from "~icons/material-symbols/light-mode-rounded"
 import { tokenise, TokenTag } from "./json-parser"
 
 const spliceString = (string: string, toInsert: string, index: number, length = 0): string =>
@@ -158,13 +160,13 @@ export function App(): JSX.Element {
 			onInput={({ currentTarget }) => setTextAreaValue(currentTarget.value)}
 		/>
 
-		<div style="position: absolute; top: 0; right: 0">
+		<div style="position: absolute; top: .25em; right: .25em">
 			<button onClick={() => {
 				const systemTheme = prefersDarkQuery.matches ? `dark` : `light`
 				const newTheme = reverseTheme(getColorScheme() || systemTheme)
 
 				setColorScheme(newTheme == systemTheme ? `` : newTheme)
-			}}>Theme</button>
+			}}>{getColorScheme() == `light` ? <LightModeIcon/> : <DarkModeIcon/>}</button>
 		</div>
 	</>
 }

@@ -10,9 +10,11 @@
 	},
 	"license": "MIT",
 	"devDependencies": {
+		"@iconify-json/material-symbols": "^1.2.89",
 		"@types/node": "^26.2.0",
 		"solid-devtools": "^0.34.5",
 		"typescript": "^7.0.2",
+		"unplugin-icons": "^23.0.1",
 		"vite": "^8.2.1",
 		"vite-plugin-solid": "^2.11.14"
 	},
