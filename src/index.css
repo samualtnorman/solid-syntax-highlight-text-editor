@@ -15,12 +15,11 @@ body, textarea, input {
 
 /* https://catppuccin.com/palette/ */
 body {
-	position: relative;
 	font-family: monospace;
 	font-size: clamp(16px, 3vw, 20px);
 	word-break: break-word;
 	background-color: var(--base);
-	display: block;
+	display: flex;
 	width: 100%;
 	min-height: 100%
 }

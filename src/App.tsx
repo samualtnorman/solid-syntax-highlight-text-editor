@@ -13,6 +13,7 @@ const reverseTheme = (theme: Theme) => theme == `light` ? `dark` : `light`
 
 export function App(): JSX.Element {
 	let divElement!: HTMLDivElement
+	let lineNumbersElement!: HTMLDivElement
 
 	const [ getTextAreaValue, setTextAreaValue ] = createSignal(`\
 [
@@ -139,41 +140,48 @@ export function App(): JSX.Element {
 
 	return <>
 		<div
-			ref={divElement}
-			style="user-select: none; white-space: pre-wrap"
-		>{getTextAreaValue()}</div>
+			ref={lineNumbersElement}
+			style="user-select: none; white-space: preserve nowrap; text-align: right; margin: 0 .25em; color: var(--overlay0)"
+		>{getTextAreaValue().split(/\n/g).map((_, i) => i + 1).join(`\n`)}</div>
 
-		{isError() && <div
-			style="position: absolute; top: 0; user-select: none; white-space: preserve nowrap; color: var(--red)"
-		>{
-			spliceString(getTextAreaValue().replace(/\S/g, ` `), `  ${getErrorMessage()}`, getIndexOfEndOfErrorLine())
-		}</div>}
+		<div style="position: relative; flex-grow: 1">
+			<div
+				ref={divElement}
+				style="user-select: none; white-space: pre-wrap"
+			>{getTextAreaValue()}</div>
 
-		<textarea
-			value={untrack(() => getTextAreaValue())}
-			style="top: 0; right: 0; bottom: 0; left: 0; color: transparent; caret-color: var(--rosewater); position: absolute; left: 0; white-space: pre-wrap; overflow-y: hidden"
-			onKeyDown={event => {
-				if (event.key == `Tab`) {
-					event.preventDefault()
-					document.execCommand(`insertText`, false, `\t`)
-				}
-			}}
-			onInput={({ currentTarget }) => setTextAreaValue(currentTarget.value)}
-		/>
+			{isError() && <div
+				style="position: absolute; top: 0; user-select: none; white-space: preserve nowrap; color: var(--red)"
+			>{
+				spliceString(getTextAreaValue().replace(/\S/g, ` `), `  ${getErrorMessage()}`, getIndexOfEndOfErrorLine())
+			}</div>}
 
-		<div style="position: absolute; top: .25em; right: .25em">
-			<button onClick={() => {
-				const systemTheme = prefersDarkQuery.matches ? `dark` : `light`
-				const newTheme = reverseTheme(getColorScheme() || systemTheme)
+			<textarea
+				value={untrack(() => getTextAreaValue())}
+				style="top: 0; right: 0; bottom: 0; left: 0; color: transparent; caret-color: var(--rosewater); position: absolute; white-space: pre-wrap; overflow-y: hidden"
+				onKeyDown={event => {
+					if (event.key == `Tab`) {
+						event.preventDefault()
+						document.execCommand(`insertText`, false, `\t`)
+					}
+				}}
+				onInput={({ currentTarget }) => setTextAreaValue(currentTarget.value)}
+			/>
 
-				setColorScheme(newTheme == systemTheme ? `` : newTheme)
-			}}>{getColorScheme() == `light` ? <LightModeIcon/> : <DarkModeIcon/>}</button>
+			<div style="position: absolute; top: .25em; right: .25em">
+				<button onClick={() => {
+					const systemTheme = prefersDarkQuery.matches ? `dark` : `light`
+					const newTheme = reverseTheme(getColorScheme() || systemTheme)
+
+					setColorScheme(newTheme == systemTheme ? `` : newTheme)
+				}}>{getColorScheme() == `light` ? <LightModeIcon/> : <DarkModeIcon/>}</button>
+			</div>
+
+			<a
+				href="https://github.com/samualtnorman/solid-syntax-highlight-text-editor"
+				target="_blank"
+				style="position: absolute; bottom: .25em; right: .25em"
+			>Source<OutwardArrowIcon width="1em" height="1em"/></a>
 		</div>
-
-		<a
-			href="https://github.com/samualtnorman/solid-syntax-highlight-text-editor"
-			target="_blank"
-			style="position: absolute; bottom: .25em; right: .25em"
-		>Source<OutwardArrowIcon width="1em" height="1em"/></a>
 	</>
 }
