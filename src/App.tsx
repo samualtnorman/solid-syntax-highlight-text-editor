@@ -1,4 +1,5 @@
 import { createEffect, createMemo, createSignal, untrack, type JSX } from "solid-js"
+import OutwardArrowIcon from "~icons/material-symbols/arrow-outward-rounded"
 import DarkModeIcon from "~icons/material-symbols/dark-mode-rounded"
 import LightModeIcon from "~icons/material-symbols/light-mode-rounded"
 import { tokenise, TokenTag } from "./json-parser"
@@ -168,5 +169,11 @@ export function App(): JSX.Element {
 				setColorScheme(newTheme == systemTheme ? `` : newTheme)
 			}}>{getColorScheme() == `light` ? <LightModeIcon/> : <DarkModeIcon/>}</button>
 		</div>
+
+		<a
+			href="https://github.com/samualtnorman/solid-syntax-highlight-text-editor"
+			target="_blank"
+			style="position: absolute; bottom: .25em; right: .25em"
+		>Source<OutwardArrowIcon width="1em" height="1em"/></a>
 	</>
 }

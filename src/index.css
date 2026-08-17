@@ -32,6 +32,15 @@ button {
 	cursor: pointer
 }
 
+a {
+	color: var(--sky);
+	text-decoration: none
+}
+
+a:hover {
+	text-decoration: underline
+}
+
 textarea::selection {
 	background-color: rgb(from var(--overlay2) r g b / .3)
 }
