@@ -19,7 +19,10 @@ body {
 	font-family: monospace;
 	font-size: clamp(16px, 3vw, 20px);
 	word-break: break-word;
-	background-color: var(--base)
+	background-color: var(--base);
+	display: block;
+	width: 100%;
+	min-height: 100%
 }
 
 textarea::selection {

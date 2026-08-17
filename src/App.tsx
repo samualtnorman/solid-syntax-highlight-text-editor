@@ -137,18 +137,18 @@ export function App(): JSX.Element {
 	return <>
 		<div
 			ref={divElement}
-			style="position: absolute; user-select: none; width: 100vw; height: 100vh; white-space: pre-wrap"
+			style="user-select: none; white-space: pre-wrap"
 		>{getTextAreaValue()}</div>
 
 		{isError() && <div
-			style="position: absolute; user-select: none; width: 100vw; height: 100vh; white-space: preserve nowrap; color: var(--red)"
+			style="position: absolute; top: 0; user-select: none; white-space: preserve nowrap; color: var(--red)"
 		>{
 			spliceString(getTextAreaValue().replace(/\S/g, ` `), `  ${getErrorMessage()}`, getIndexOfEndOfErrorLine())
 		}</div>}
 
 		<textarea
 			value={untrack(() => getTextAreaValue())}
-			style="width: 100vw; height: 100vh; color: transparent; caret-color: var(--rosewater); position: absolute; left: 0; white-space: pre-wrap"
+			style="top: 0; right: 0; bottom: 0; left: 0; color: transparent; caret-color: var(--rosewater); position: absolute; left: 0; white-space: pre-wrap; overflow-y: hidden"
 			onKeyDown={event => {
 				if (event.key == `Tab`) {
 					event.preventDefault()
@@ -158,16 +158,13 @@ export function App(): JSX.Element {
 			onInput={({ currentTarget }) => setTextAreaValue(currentTarget.value)}
 		/>
 
-		<div>
-			<button
-				style="float: right"
-				onClick={() => {
-					const systemTheme = prefersDarkQuery.matches ? `dark` : `light`
-					const newTheme = reverseTheme(getColorScheme() || systemTheme)
+		<div style="position: absolute; top: 0; right: 0">
+			<button onClick={() => {
+				const systemTheme = prefersDarkQuery.matches ? `dark` : `light`
+				const newTheme = reverseTheme(getColorScheme() || systemTheme)
 
-					setColorScheme(newTheme == systemTheme ? `` : newTheme)
-				}}
-			>Theme</button>
+				setColorScheme(newTheme == systemTheme ? `` : newTheme)
+			}}>Theme</button>
 		</div>
 	</>
 }
